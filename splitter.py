@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Split shared expenses and work out the fewest transfers needed to settle up."""
 
+import argparse
 import csv
+import sys
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
@@ -134,3 +136,50 @@ def format_cents(cents):
     sign = "-" if cents < 0 else ""
     cents = abs(cents)
     return f"{sign}{cents // 100}.{cents % 100:02d}"
+
+
+def report(expenses):
+    """Build the text summary printed by the CLI."""
+    balances = compute_balances(expenses)
+    total = sum(expense.amount for expense in expenses)
+    width = max(len(name) for name in balances)
+    lines = [f"Total spent: {format_cents(total)} across {len(expenses)} expense(s)", "", "Balances:"]
+    for name, cents in sorted(balances.items()):
+        sign = "+" if cents > 0 else ""
+        lines.append(f"  {name:<{width}}  {sign}{format_cents(cents)}")
+    lines += ["", "Settle up:"]
+    transfers = settle(balances)
+    if not transfers:
+        lines.append("  Everyone is even.")
+    for debtor, creditor, cents in transfers:
+        lines.append(f"  {debtor} pays {creditor} {format_cents(cents)}")
+    return "\n".join(lines)
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(
+        description="Split shared expenses from a CSV file and show who should pay whom."
+    )
+    parser.add_argument(
+        "csv_file",
+        help="CSV with columns payer, amount, participants (semicolon-separated), description",
+    )
+    args = parser.parse_args(argv)
+
+    try:
+        with open(args.csv_file, newline="", encoding="utf-8") as handle:
+            expenses = read_expenses(handle)
+    except (OSError, ValueError) as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1
+
+    if not expenses:
+        print("No expenses found.")
+        return 0
+
+    print(report(expenses))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
