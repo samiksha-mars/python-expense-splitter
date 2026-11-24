@@ -1,0 +1,6 @@
+payer,amount,participants,description
+alice,120.00,alice;bob;carol;dave,Groceries
+bob,60.00,alice;bob;carol,Taxi
+carol,45.50,carol;dave,Museum tickets
+dave,200.00,alice;bob;carol;dave,Cabin rental
+alice,30.00,bob;carol,Snacks for the drive
