@@ -42,7 +42,8 @@ def read_expenses(lines):
         raise ValueError(f"CSV is missing column(s): {', '.join(sorted(missing))}")
 
     expenses = []
-    for line_no, row in enumerate(reader, start=2):
+    for row in reader:
+        line_no = reader.line_num
         payer = (row["payer"] or "").strip()
         participants = [p.strip() for p in (row["participants"] or "").split(";") if p.strip()]
         if not payer or not participants:

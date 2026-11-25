@@ -58,6 +58,10 @@ class ParseTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Line 3"):
             parse("payer,amount,participants\nalice,10,bob\nbob,oops,alice\n")
 
+    def test_line_number_accounts_for_blank_lines(self):
+        with self.assertRaisesRegex(ValueError, "Line 5"):
+            parse("payer,amount,participants\n\nalice,10,bob\n\nbob,oops,alice\n")
+
 
 class BalanceTest(unittest.TestCase):
 
