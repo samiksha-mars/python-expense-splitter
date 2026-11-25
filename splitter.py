@@ -168,7 +168,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
 
     try:
-        with open(args.csv_file, newline="", encoding="utf-8") as handle:
+        # utf-8-sig drops the byte order mark that Excel puts at the start of CSV exports.
+        with open(args.csv_file, newline="", encoding="utf-8-sig") as handle:
             expenses = read_expenses(handle)
     except (OSError, ValueError) as exc:
         print(f"Error: {exc}", file=sys.stderr)

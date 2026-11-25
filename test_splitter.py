@@ -130,6 +130,14 @@ class MainTest(unittest.TestCase):
         self.assertIn("Total spent: 455.50", out)
         self.assertIn("carol pays dave 92.25", out)
 
+    def test_file_with_byte_order_mark(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "excel.csv"
+            path.write_bytes(b"\xef\xbb\xbfpayer,amount,participants\nalice,10,bob\n")
+            code, out, err = self.run_main([str(path)])
+        self.assertEqual(code, 0, err)
+        self.assertIn("bob pays alice 10.00", out)
+
     def test_bad_file(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "bad.csv"
